@@ -10,7 +10,7 @@ import type { GameState } from './state';
  *   flag(name)  set_flag(name)  clear_flag(name)
  *   holds(item) give(item)      take(item)
  *   coins()     add_coins(n)    reveal(actor)   cutscene(id)
- *   music(tune)
+ *   count(name) add_count(name, n)   music(tune)
  *
  * A line tagged #who:<actor id> (or #who:you) changes the speaker.
  */
@@ -29,6 +29,8 @@ export class InkRunner {
     bind('take', (i: string) => state.take(i));
     bind('coins', () => state.coins, true);
     bind('add_coins', (n: number) => (state.coins += n));
+    bind('count', (name: string) => state.count(name), true);
+    bind('add_count', (name: string, n: number) => state.add(name, n));
     bind('reveal', (a: string) => state.reveal(a));
     bind('cutscene', (id: string) => state.queue(id));
     bind('music', (name: string) => {

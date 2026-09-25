@@ -17,7 +17,7 @@ export const osric: ActorDef = {
       : 'intro',
     nodes: {
       intro: {
-        lines: ['Another visitor. Did the priest send you?'],
+        lines: ['So you are the one who fetched help. I suppose I owe you.', 'Did the priest send you?'],
         do: (s) => s.set('met_osric'),
         choices: [
           { text: "Did you take the bell's clapper?", next: 'admit' },

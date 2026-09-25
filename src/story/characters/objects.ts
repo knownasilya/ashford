@@ -25,6 +25,14 @@ function chest(id: string, coins: number, found: string): ActorDef {
 export const chestVillage = chest('chest_village', 4, 'Under an old blanket, a purse.');
 export const chestKeep = chest('chest_keep', 5, 'Behind a loose stone, a small chest. Someone hid it long ago.');
 
+/** The fallen wall at the keep gate. Osric's voice comes through it (see ink/scenes.ink). */
+export const rubble: ActorDef = {
+  id: 'rubble',
+  name: 'Fallen Stones',
+  sprite: 'rubble',
+  ink: 'rubble',
+};
+
 export const sign: ActorDef = {
   id: 'sign',
   name: 'Signpost',

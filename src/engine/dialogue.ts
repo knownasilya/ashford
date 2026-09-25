@@ -59,7 +59,8 @@ export function nodeConversation(dlg: Dialogue, s: GameState, start?: string): C
       const c = visible[i];
       visible = [];
       c.do?.(s);
-      if (c.next) enter(c.next);
+      const next = typeof c.next === 'function' ? c.next(s) : c.next;
+      if (next) enter(next);
       else node = undefined;
     },
   };

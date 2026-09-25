@@ -6,6 +6,8 @@ export class GameState {
   flags = new Set<string>();
   items = new Set<string>();
   coins = 0;
+  /** Named numbers, such as how many bundles of wood you delivered. */
+  counts: Record<string, number> = {};
   /** Cutscenes to play after the current dialogue ends. */
   queued: string[] = [];
 
@@ -16,6 +18,9 @@ export class GameState {
   holds = (item: string) => this.items.has(item);
   give = (item: string) => this.items.add(item);
   take = (item: string) => this.items.delete(item);
+
+  count = (name: string) => this.counts[name] ?? 0;
+  add = (name: string, n = 1) => (this.counts[name] = this.count(name) + n);
 
   /** Names: a person shows as "???" until revealed. */
   knows = (actor: string) => this.flags.has(`known_${actor}`);
@@ -34,6 +39,7 @@ export interface SaveData {
   flags: string[];
   items: string[];
   coins: number;
+  counts?: Record<string, number>;
   /** ink's own state: variables, visit counts. */
   ink?: string;
 }

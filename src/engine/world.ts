@@ -1,7 +1,7 @@
 import { BG, STEP_MS, TILE, VIEW_H, VIEW_W } from './config';
 import { sprite } from './sprites';
 import type { GameState } from './state';
-import { TILES } from './tiles';
+import { TILES, type TileDef } from './tiles';
 import type { ActorDef, Dir, Marker, Placement, SceneDef, Story, Warp } from './types';
 
 export const DELTA: Record<Dir, [number, number]> = {
@@ -39,10 +39,10 @@ function begin(m: Mover, d: Dir) {
 }
 
 /** Advance a mover. Returns true when it arrives on a new tile. */
-function tick(m: Mover, dt: number): boolean {
+function tick(m: Mover, dt: number, speed = 1): boolean {
   let arrived = false;
   if (m.t < 1) {
-    m.t = Math.min(1, m.t + dt / STEP_MS);
+    m.t = Math.min(1, m.t + (dt * speed) / STEP_MS);
     arrived = m.t === 1;
   }
   if (m.t === 1) {
@@ -73,7 +73,11 @@ export class World {
   /** Called when the player finishes a step onto a new tile. */
   onArrive?: (x: number, y: number) => void;
 
-  constructor(private story: Story, private state: GameState) {}
+  private tiles: Record<string, TileDef>;
+
+  constructor(private story: Story, private state: GameState) {
+    this.tiles = { ...TILES, ...story.tiles };
+  }
 
   load(sceneId: string, x: number, y: number, dir: Dir = 'down') {
     const scene = this.story.scenes[sceneId];
@@ -83,7 +87,7 @@ export class World {
     this.w = scene.map[0].length;
     scene.map.forEach((row, i) => {
       if (row.length !== this.w) throw new Error(`Scene "${sceneId}" row ${i} is ${row.length} wide, expected ${this.w}`);
-      for (const ch of row) if (!TILES[ch]) throw new Error(`Scene "${sceneId}" uses unknown tile "${ch}"`);
+      for (const ch of row) if (!this.tiles[ch]) throw new Error(`Scene "${sceneId}" uses unknown tile "${ch}"`);
     });
     this.player = mover(x, y, dir);
     this.actors = [];
@@ -112,7 +116,7 @@ export class World {
 
   solid(x: number, y: number): boolean {
     const ch = this.tile(x, y);
-    return !ch || TILES[ch].solid || !!this.actorAt(x, y);
+    return !ch || this.tiles[ch].solid || !!this.actorAt(x, y);
   }
 
   actorAt(x: number, y: number): ActorDef | undefined {
@@ -165,7 +169,8 @@ export class World {
   }
 
   update(dt: number) {
-    if (tick(this.player, dt)) this.onArrive?.(this.player.x, this.player.y);
+    const speed = this.story.playerSpeed?.(this.state) ?? 1;
+    if (tick(this.player, dt, speed)) this.onArrive?.(this.player.x, this.player.y);
     for (const a of this.actors) tick(a.m, dt);
   }
 
@@ -193,8 +198,9 @@ export class World {
     const tiles = (layer: 'ground' | 'over') => {
       for (let y = y0; y <= Math.min(this.h - 1, y0 + VIEW_H); y++) {
         for (let x = x0; x <= Math.min(this.w - 1, x0 + VIEW_W); x++) {
-          const t = TILES[this.tile(x, y)!];
-          const name = layer === 'over' ? (t.over ? t.sprite : null) : t.over ? t.under : t.sprite;
+          const t = this.tiles[this.tile(x, y)!];
+          const own = typeof t.sprite === 'function' ? t.sprite(this.state) : t.sprite;
+          const name = layer === 'over' ? (t.over ? own : null) : t.over ? t.under : own;
           if (name) ctx.drawImage(sprite(name, frame), x * TILE - cx, y * TILE - cy);
         }
       }
@@ -216,9 +222,9 @@ export class World {
       if (m.flip) {
         ctx.translate(sx + TILE, sy);
         ctx.scale(-1, 1);
-        ctx.drawImage(sprite(name), 0, 0);
+        ctx.drawImage(sprite(name, frame), 0, 0);
       } else {
-        ctx.drawImage(sprite(name), sx, sy);
+        ctx.drawImage(sprite(name, frame), sx, sy);
       }
       ctx.restore();
     }

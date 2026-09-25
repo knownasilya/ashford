@@ -47,9 +47,17 @@ export const hal: ActorDef = {
       again: {
         lines: ['Stay out of trouble, pilgrim.'],
         choices: [
+          { text: 'A man is trapped in the old keep. The wall fell on the gate.', next: 'help', when: (s) => s.has('heard_voice') && !s.has('help_hal') },
           { text: 'Who rang the bell before?', next: 'osric' },
           { text: 'Goodbye.' },
         ],
+      },
+      help: {
+        lines: [
+          'The old keep? That wall has been falling for fifty years.',
+          (s) => (s.has('help_tobin') ? 'Tobin is going? Then I will bring rope. Go on ahead.' : 'I will fetch rope. But we need more hands. Tobin, if he will leave his fire.'),
+        ],
+        do: (s) => s.set('help_hal'),
       },
       osric: {
         lines: [

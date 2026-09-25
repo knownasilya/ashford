@@ -36,7 +36,10 @@ export async function play(steps: Cutscene, d: Director) {
     }
     else if ('talk' in s) await d.talk(s.talk, s.node);
     else if ('warp' in s) d.warp(s.warp, s.x, s.y, s.dir);
-    else if ('do' in s) s.do(d.state);
+    else if ('do' in s) {
+      s.do(d.state);
+      d.world.refreshActors(); // people may appear or leave
+    }
     else if ('sound' in s) bell();
     else if ('shake' in s) d.ui.shake(s.shake);
     else if ('end' in s) d.ending(s.end);

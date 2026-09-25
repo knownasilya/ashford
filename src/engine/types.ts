@@ -18,8 +18,8 @@ export interface Choice {
   /** Show this choice only when the condition is true. */
   when?: Cond;
   do?: Effect;
-  /** Node to go to. Leave out to end the conversation. */
-  next?: string;
+  /** Node to go to, or a function that picks one. Leave out to end the conversation. */
+  next?: string | ((s: GameState) => string);
 }
 export interface DialogueNode {
   lines: (Text | Line)[];
@@ -96,8 +96,11 @@ export interface SceneDef {
   map: string[];
   actors: Placement[];
   warps: Warp[];
-  /** A cutscene to play on entry. With `once`, it plays only the first time. */
-  onEnter?: { cutscene: string; once?: boolean };
+  /**
+   * Cutscenes to play on entry, in order. `once` plays it only the first
+   * time; `when` plays it only while the condition is true.
+   */
+  onEnter?: { cutscene: string; once?: boolean; when?: Cond }[];
 }
 
 // ---------------------------------------------------------------- cutscenes
@@ -136,6 +139,10 @@ export interface Story {
   endings: Record<string, Ending>;
   /** Quest log lines for the HUD: the main goal first, then side quests. */
   objective: (s: GameState) => string[];
+  /** Extra map tiles for this story, added to the legend in engine/tiles.ts. */
+  tiles?: Record<string, import('./tiles').TileDef>;
+  /** Walking speed for the player: 1 is normal, 0.5 is half speed. */
+  playerSpeed?: (s: GameState) => number;
   /** Tunes that ink can play with music("name"). */
   tunes?: Record<string, import('./audio').Tune>;
   /** Compiled ink JSON, if the story uses ink. */

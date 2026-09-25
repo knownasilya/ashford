@@ -50,6 +50,19 @@ function roofShape(mask: (x: number, y: number) => 'in' | 'edge' | null, top: st
   return { frames: [rows], colors: { d: DIRT } };
 }
 
+/** Put a 4-pixel-wide chimney (columns 2-5) on top of a roof tile. */
+function chimney(roof: string[], brick: string[], bg: string, colors?: Record<string, string>): SpriteDef {
+  const rows = roof.map((row, y) => row.slice(0, 2) + brick[y] + row.slice(6));
+  return { frames: [rows], bg, colors };
+}
+const WOOD_ROOF = ['RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o', 'RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o'];
+const STONE_ROOF = ['SS..SS..', 'SS..SS..', 'SSSSSSSS', 'S.S.S.S.', 'SSSSSSSS', '........', 'SSSSSSSS', '........'];
+const STONE_STACK = ['kkkk', 'sSSs', 'SSsS', 'sSSs', 'SsSS', 'sSSs', 'SSsS', 'sSSs'];
+const BRICK_STACK = ['kkkk', 'RoRR', 'RRoR', 'oRRo', 'RoRR', 'RRoR', 'oRRo', 'RoRR'];
+// Smoke puffs. Each frame shifts them up two pixels, so the smoke rises.
+const SMOKE = ['...SS...', '..SSSs..', '...Ss...', '........', '....Ss..', '...SSSs.', '....sS..', '........'];
+const rise = (rows: string[], k: number) => [...rows.slice(k), ...rows.slice(0, k)];
+
 export const SPRITES: Record<string, SpriteDef> = {
   // ---------- terrain ----------
   grass: sp(['........', '..g.....', '........', '.....g..', '........', '.g......', '......g.', '........']),
@@ -68,6 +81,11 @@ export const SPRITES: Record<string, SpriteDef> = {
   stoneTop: sp(['SS..SS..', 'SS..SS..', 'SSSSSSSS', 'S.S.S.S.', 'SSSSSSSS', '........', 'SSSSSSSS', '........'], STONE),
   woodWall: sp(['RRRRRRRR', 'R.RR.RR.', 'R.RR.RR.', 'R.RR.RR.', 'RRRRRRRR', 'R.RR.RR.', 'R.RR.RR.', 'R.RR.RR.'], DIRT),
   woodRoof: sp(['RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o', 'RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o'], DIRT),
+  windowWood: sp(['RRRRRRRR', 'R.oooo.R', 'R.oYYo.R', 'R.oooo.R', 'R.oYYo.R', 'R.oooo.R', 'R.RRRR.R', 'R.RR.RR.'], DIRT),
+  windowStone: sp(['SSS.SSSS', 'SSS.SSSS', '..ssss..', 'S.sYYs.S', 'S.sYYs.S', '..ssss..', 'SSS.SSSS', 'SSS.SSSS'], STONE),
+  chimneyWood: chimney(WOOD_ROOF, STONE_STACK, DIRT, { k: '#05080e' }),
+  chimneyStone: chimney(STONE_ROOF, BRICK_STACK, STONE, { k: '#05080e' }),
+  smoke: anim([rise(SMOKE, 0), rise(SMOKE, 2), rise(SMOKE, 4), rise(SMOKE, 6)]),
   door: sp(['.RRRRRR.', 'RR....RR', 'R......R', 'R......R', 'R....Y.R', 'R......R', 'R......R', 'R......R'], '#150a06'),
   cross: sp(['........', '........', '...YY...', '...YY...', '.YYYYYY.', '.YYYYYY.', '...YY...', '...YY...']),
   // Pointed roof: left slope, right slope, and the peak (with the cross's foot).
@@ -91,6 +109,16 @@ export const SPRITES: Record<string, SpriteDef> = {
     ['ssssssss', 's..X...s', 's.XYX..s', 's.XYYX.s', 'sXYYYXXs', 'sXXXXXXs', 'ssssssss', 'ssssssss'],
     ['ssssssss', 's...X..s', 's..XYX.s', 's.XYYX.s', 'sXXYYYXs', 'sXXXXXXs', 'ssssssss', 'ssssssss'],
   ], STONE),
+  table: sp(['........', 'RRRRRRRR', 'oooooooo', '.R....R.', '.R....R.', '.R....R.', '........', '........'], FLOOR),
+  wheat: anim([
+    ['.Y...Y..', '.YF..YF.', '..F...F.', '..F...F.', 'Y...Y...', 'YF..YF..', '.F...F..', '.F...F..'],
+    ['..Y...Y.', '.FY..FY.', '..F...F.', '..F...F.', '.Y...Y..', 'FY..FY..', '.F...F..', '.F...F..'],
+  ], DIRT),
+  forgeCold: sp(['ssssssss', 's......s', 's......s', 's......s', 's.s..s.s', 'sSsSSsSs', 'ssssssss', 'ssssssss'], STONE),
+  rubble: sp(['..ss....', '.sSSs.s.', 'sSSSsSSs', 'sSSsSSSs', '.ssSSSs.', 'sSSssSSs', 'sSSSSSSs', '.ssssss.']),
+  logs: sp(['........', '.oo..oo.', 'oRRooRRo', 'oRRooRRo', '.oooooo.', 'oRRooRRo', 'oRRooRRo', '.oo..oo.']),
+  wood: sp(['........', '..RRRR..', '.oRRRRo.', '..YYYY..', '.oRRRRo.', '..RRRR..', '........', '........']),
+  sickbed: sp(['........', 'R......R', 'Rwwhbbbb', 'Rwhhbbbb', 'RRRRRRRR', 'R......R', '........', '........'], FLOOR, { h: '#e8c9a0', b: '#6d8ce0' }),
   barrel: sp(['..RRRR..', '.RrrrrR.', '.YYYYYY.', '.RrrrrR.', '.RrrrrR.', '.YYYYYY.', '.RrrrrR.', '..RRRR..'], DIRT),
 
   // ---------- people (h = head/hood, c = body, x = held thing) ----------
@@ -102,6 +130,9 @@ export const SPRITES: Record<string, SpriteDef> = {
   hooded: sp(['..cccc..', '.cc..cc.', '.c.hh.c.', '.cccccc.', 'cccccccc', '.cccccc.', '.cccccc.', '..c..c..'], undefined, { c: '#8a8f99', h: '#c9a13a' }),
   minstrel: sp(['..hhhh..', '...cc...', '..cccc..', '.cc.xx..', 'c.cxxxx.', '..cxxx..', '..c..c..', '..c..c..'], undefined, { h: '#d9493c', c: '#9b6bd0', x: '#b0823f' }),
   veiled: sp(['..cccc..', '.cchhcc.', '.ch..hc.', '.cccccc.', 'cccccccc', '.cccccc.', '.cccccc.', '..c..c..'], undefined, { c: '#b8a9d9', h: '#7d6fa3' }),
+  farmer: sp(['...hh...', '...cc...', '..cccc..', '.c.xx.c.', '.c.xx.c.', '..cxxc..', '..c..c..', '..c..c..'], undefined, { h: '#8c4a2b', c: '#6e9a34', x: '#ecebe4' }),
+  girl: sp(['........', '...hh...', '...cc...', '..cccc..', '.c.cc.c.', '...cc...', '..c..c..', '..c..c..'], undefined, { h: '#8c4a2b', c: '#d9a53a' }),
+  goose: sp(['........', '....ww..', '....wwY.', '....w...', '.wwwww..', 'wwwwwww.', '.wwwww..', '..Y..Y..']),
   guard: sp(['.x.hh...', '.x.cc...', '.xcccc..', '.xccccc.', '.x.ccc.c', '.x.cc...', '.xc..c..', '.xc..c..'], undefined, { h: '#e8c9a0', c: '#6e9a34', x: '#b9c0c9' }),
 
   // ---------- objects & icons ----------

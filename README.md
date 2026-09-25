@@ -22,6 +22,14 @@ Arrows / WASD move. Space, E or Enter talks. 1–9 picks a choice.
 someone took the clapper from the church bell. Old Osric rang that bell
 for forty years, until Brother Aldric gave the rope to young Wren.
 
+**The old keep.** Part of its wall has fallen across the gate. You can hear
+someone trapped inside, but you need help: ask Tobin and Hal, and they
+dig him out.
+
+**Tobin's forge.** It has gone cold. His son Col, who keeps the fire, lies
+sick at Hollin Farm east of town. Carry wood from the farm to the smithy,
+one heavy bundle at a time (you walk slower while carrying it).
+
 **Side quest — the veiled woman.** She will not tell you her name. She
 moves each time she slips away (village, then keep, then church). Mara,
 Aldric and Bryn each hold one clue. Guess right and she tells you who she is.
@@ -32,23 +40,24 @@ There are three ways to finish:
 | --- | --- |
 | **Two Hands on the Rope** | Learn why Osric took it (Aldric), learn Wren is afraid (Wren), then tell Osric. |
 | **The Bell Rings** | Threaten Osric until he hands the clapper over. |
-| **A New Voice** | Collect 10 coins from the chests and pay Tobin to forge a new clapper. |
+| **A New Voice** | Bring Tobin 3 bundles of wood for his forge, then pay him 10 coins to forge a new clapper. |
 
 ## What the engine gives you
 
 | Element | Where | Notes |
 | --- | --- | --- |
-| Scenes and maps | `src/story/scenes.ts` | ASCII maps. The legend is in `src/engine/tiles.ts`. Roofs and the cross are an overhead layer: you walk behind them. |
+| Scenes and maps | `src/story/scenes.ts` | ASCII maps. The legend is in `src/engine/tiles.ts`. Roofs, chimneys, smoke and the cross are an overhead layer: you walk behind them. A story can add its own tiles (`src/story/tiles.ts`), and a tile's sprite can depend on the state: the smithy smokes only while the forge burns. |
 | Doors and exits | `warps` in a scene | Step on the tile to change scene. `when` + `locked` make a locked door. |
 | Characters | `src/story/characters/*.ts` | One file per character: sprite, voice pitch, dialogue. |
 | Branching talk (TS) | `Dialogue` nodes | Lines, choices, conditions (`when`), effects (`do`). |
 | Branching talk (ink) | `src/story/ink/*.ink` | Set `ink: 'knot'` on an actor. See "Ink" below. |
 | Names | `role`, `introduce` | A person shows as their role, or "???", until you learn their name. |
-| Memory | `GameState` | `s.set('flag')`, `s.has('flag')`, `s.give('item')`, `s.coins`. |
+| Memory | `GameState` | `s.set('flag')`, `s.has('flag')`, `s.give('item')`, `s.coins`, counters with `s.add('name')` / `s.count('name')`. |
+| Walking speed | `Story.playerSpeed` | For example, slower while carrying something heavy. |
 | Actors that move | `Placement.when` | Osric leaves the keep and waits in the church once `osric_coming` is set. |
 | Markers | `ActorDef.marker` | `!` until you first talk to someone. `?` when they have something new. |
 | Cutscenes | `src/story/cutscenes.ts` | Steps: `card`, `fade`, `move`, `face`, `say`, `talk`, `ink`, `warp`, `wait`, `sound`, `shake`, `end`. |
-| Scene entry events | `SceneDef.onEnter` | For example, a thought the first time you enter the keep. |
+| Scene entry events | `SceneDef.onEnter` | A list of cutscenes, each with `once` and `when`. The keep uses one for the first visit and one for the rescue. |
 | Quest log | `src/story/quest.ts` | One HUD line per active quest, worked out from the flags. |
 | Endings | `src/story/endings.ts` | Queue a cutscene that ends with `{ end: 'id' }`. |
 | Save / Continue | `src/engine/state.ts` | Saves to `localStorage` after each talk and scene change. |
@@ -73,6 +82,7 @@ and Osric use TypeScript dialogue. Both kinds run in the same talk box.
   | `flag(name)` / `set_flag(name)` / `clear_flag(name)` | Read and write game flags |
   | `holds(item)` / `give(item)` / `take(item)` | Items |
   | `coins()` / `add_coins(n)` | Money (use a negative n to spend) |
+  | `count(name)` / `add_count(name, n)` | Counters shared with TypeScript |
   | `reveal(actor)` | The player learns this person's name |
   | `cutscene(id)` | Play a cutscene when the talk ends |
   | `music(tune)` | Play a short tune from `src/story/music.ts` |

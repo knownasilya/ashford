@@ -103,12 +103,13 @@ async function busy(fn: () => Promise<void>) {
 }
 
 async function enterScene() {
-  const on = world.scene.onEnter;
-  if (!on) return;
-  const seen = `seen_${on.cutscene}`;
-  if (on.once && state.has(seen)) return;
-  state.set(seen);
-  await cutscene(on.cutscene);
+  for (const on of world.scene.onEnter ?? []) {
+    const seen = `seen_${on.cutscene}`;
+    if (on.once && state.has(seen)) continue;
+    if (on.when && !on.when(state)) continue;
+    state.set(seen);
+    await cutscene(on.cutscene);
+  }
 }
 
 function useWarp(w: Warp) {
@@ -129,7 +130,7 @@ world.onArrive = (x, y) => {
 function save() {
   saveGame({
     scene: world.scene.id, x: world.player.x, y: world.player.y,
-    flags: [...state.flags], items: [...state.items], coins: state.coins,
+    flags: [...state.flags], items: [...state.items], coins: state.coins, counts: state.counts,
     ink: ink?.save(),
   });
 }
@@ -139,6 +140,7 @@ function reset() {
   state.items.clear();
   state.queued = [];
   state.coins = story.start.coins;
+  state.counts = {};
   ink?.reset();
 }
 
@@ -163,6 +165,7 @@ function continueGame() {
   s.flags.forEach((f) => state.flags.add(f));
   s.items.forEach((i) => state.items.add(i));
   state.coins = s.coins;
+  state.counts = { ...s.counts };
   if (s.ink) ink?.load(s.ink);
   ui.hideTitle();
   ui.showHud(true);

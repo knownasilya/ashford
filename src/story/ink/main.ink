@@ -8,6 +8,7 @@ INCLUDE mara.ink
 INCLUDE wren.ink
 INCLUDE bryn.ink
 INCLUDE veiled.ink
+INCLUDE farm.ink
 INCLUDE scenes.ink
 
 // Functions the game provides (src/engine/ink.ts).
@@ -19,6 +20,8 @@ EXTERNAL give(item)
 EXTERNAL take(item)
 EXTERNAL coins()
 EXTERNAL add_coins(amount)
+EXTERNAL count(name)
+EXTERNAL add_count(name, amount)
 EXTERNAL reveal(actor)
 EXTERNAL cutscene(id)
 EXTERNAL music(tune)
