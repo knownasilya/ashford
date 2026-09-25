@@ -136,6 +136,8 @@ export interface Story {
   endings: Record<string, Ending>;
   /** Quest log lines for the HUD: the main goal first, then side quests. */
   objective: (s: GameState) => string[];
+  /** Tunes that ink can play with music("name"). */
+  tunes?: Record<string, import('./audio').Tune>;
   /** Compiled ink JSON, if the story uses ink. */
   ink?: string;
 }

@@ -4,8 +4,9 @@ import type { SceneDef } from '../engine/types';
  * Map legend (see src/engine/tiles.ts):
  *   .  grass     ,  tall grass   :  dirt      _  path     =  bridge / dock
  *   T  pine      O  oak          ~  water     r  rock     F  fence
- *   W  wood wall R  wood roof    D  door      +  cross
- *   #  stone wall ^ stone top    -  wood floor
+ *   W  wood wall R  wood roof*   D  door      +  cross*
+ *   #  stone wall ^ stone roof*  M  battlement  -  wood floor
+ *   (* = drawn over characters: you can walk behind it)
  *   p  pew       a  altar        c  candle    n  anvil    f  forge   b  barrel
  */
 
@@ -109,7 +110,7 @@ const keep: SceneDef = {
   name: 'The Old Keep',
   map: [
     'TTTTTTTTTTTTTTTTTTTT',
-    'TT^^^^^^^^^^^^^^^^TT',
+    'TTMMMMMMMMMMMMMMMMTT',
     'TT#::::::::::::::#TT',
     'T.#::r:::::::::::#.T',
     'T.#::::::::::::r:#.T',

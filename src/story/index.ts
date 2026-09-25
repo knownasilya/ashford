@@ -10,6 +10,7 @@ import { tobin } from './characters/tobin';
 import { wren } from './characters/wren';
 import { cutscenes } from './cutscenes';
 import { endings } from './endings';
+import { tunes } from './music';
 import { objectives } from './quest';
 import { scenes } from './scenes';
 import inkStory from './ink/main.ink';
@@ -27,4 +28,5 @@ export const story: Story = {
   endings,
   objective: objectives,
   ink: inkStory,
+  tunes,
 };

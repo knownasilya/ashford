@@ -190,12 +190,17 @@ export class World {
     const frame = Math.floor(time / 500);
     const x0 = Math.max(0, Math.floor(cx / TILE));
     const y0 = Math.max(0, Math.floor(cy / TILE));
-    for (let y = y0; y <= Math.min(this.h - 1, y0 + VIEW_H); y++) {
-      for (let x = x0; x <= Math.min(this.w - 1, x0 + VIEW_W); x++) {
-        const ch = this.tile(x, y)!;
-        ctx.drawImage(sprite(TILES[ch].sprite, frame), x * TILE - cx, y * TILE - cy);
+    const tiles = (layer: 'ground' | 'over') => {
+      for (let y = y0; y <= Math.min(this.h - 1, y0 + VIEW_H); y++) {
+        for (let x = x0; x <= Math.min(this.w - 1, x0 + VIEW_W); x++) {
+          const t = TILES[this.tile(x, y)!];
+          const name = layer === 'over' ? (t.over ? t.sprite : null) : t.over ? t.under : t.sprite;
+          if (name) ctx.drawImage(sprite(name, frame), x * TILE - cx, y * TILE - cy);
+        }
       }
-    }
+    };
+
+    tiles('ground');
 
     const people = [
       ...this.actors.map((a) => ({ m: a.m, def: a.def as ActorDef | null })),
@@ -216,11 +221,22 @@ export class World {
         ctx.drawImage(sprite(name), sx, sy);
       }
       ctx.restore();
+    }
+
+    // Roofs cover whoever walks behind them.
+    tiles('over');
+
+    // Markers go on top of everything, so a roof never hides them.
+    const bob = Math.floor(time / 300) % 2;
+    for (const { m, def } of people) {
       const mark = def && this.marker(def);
-      if (mark) {
-        const bob = Math.floor(time / 300) % 2;
-        ctx.drawImage(sprite(mark === '!' ? 'markExclaim' : 'markQuestion'), sx, sy - TILE - bob);
-      }
+      if (!mark) continue;
+      const pos = lerp(m);
+      ctx.drawImage(
+        sprite(mark === '!' ? 'markExclaim' : 'markQuestion'),
+        Math.round(pos.x * TILE - cx),
+        Math.round(pos.y * TILE - cy) - TILE - bob,
+      );
     }
   }
 }

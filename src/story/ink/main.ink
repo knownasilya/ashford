@@ -21,5 +21,6 @@ EXTERNAL coins()
 EXTERNAL add_coins(amount)
 EXTERNAL reveal(actor)
 EXTERNAL cutscene(id)
+EXTERNAL music(tune)
 
 -> DONE

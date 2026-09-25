@@ -1,4 +1,5 @@
 import { Story } from 'inkjs';
+import { playTune, type Tune } from './audio';
 import type { Beat, Conversation } from './dialogue';
 import type { GameState } from './state';
 
@@ -9,13 +10,14 @@ import type { GameState } from './state';
  *   flag(name)  set_flag(name)  clear_flag(name)
  *   holds(item) give(item)      take(item)
  *   coins()     add_coins(n)    reveal(actor)   cutscene(id)
+ *   music(tune)
  *
  * A line tagged #who:<actor id> (or #who:you) changes the speaker.
  */
 export class InkRunner {
   readonly story: Story;
 
-  constructor(json: string, state: GameState) {
+  constructor(json: string, state: GameState, tunes: Record<string, Tune> = {}) {
     const st = (this.story = new Story(json));
     const bind = (name: string, fn: (...args: any[]) => unknown, lookaheadSafe = false) =>
       st.BindExternalFunction(name, fn, lookaheadSafe);
@@ -29,6 +31,11 @@ export class InkRunner {
     bind('add_coins', (n: number) => (state.coins += n));
     bind('reveal', (a: string) => state.reveal(a));
     bind('cutscene', (id: string) => state.queue(id));
+    bind('music', (name: string) => {
+      const tune = tunes[name];
+      if (!tune) throw new Error(`Unknown tune "${name}"`);
+      playTune(tune);
+    });
   }
 
   /** Start a conversation at a knot, such as "mara" or "bryn.song". */

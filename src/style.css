@@ -80,14 +80,16 @@ canvas.icon, #portrait { image-rendering: pixelated; }
 @keyframes shake { 25% { transform: translate(var(--u), 0) } 75% { transform: translate(calc(var(--u) * -1), 0) } }
 
 /* ---------------- title */
-#title { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(11 18 32 / 0.55); }
-#title .box { position: relative; text-align: center; padding: calc(var(--u) * 8) calc(var(--u) * 12); }
+#title, #pause { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(11 18 32 / 0.55); }
+#title .box, #pause .box { position: relative; text-align: center; padding: calc(var(--u) * 8) calc(var(--u) * 12); }
+#pause h2 { margin: 0 0 calc(var(--u) * 5); color: var(--gold); font-size: 1.2em; }
+#pause .menu { text-align: left; }
 #title h1 { margin: 0; color: var(--gold); font-size: 2.4em; letter-spacing: 0.1em; }
 #title h2 { margin: calc(var(--u) * 3) 0 calc(var(--u) * 6); font-size: 1em; font-weight: normal; }
-#menu { list-style: none; padding: 0; margin: 0; }
-#menu li { color: var(--dim); cursor: pointer; margin: var(--u) 0; }
-#menu li.selected { color: var(--ink); }
-#menu li.selected::before { content: '\25B6  '; color: var(--gold); }
+.menu { list-style: none; padding: 0; margin: 0; }
+.menu li { color: var(--dim); cursor: pointer; margin: var(--u) 0; }
+.menu li.selected { color: var(--ink); }
+.menu li.selected::before { content: '\25B6  '; color: var(--gold); }
 .keys { margin: calc(var(--u) * 6) 0 0; font-size: 0.6em; color: var(--dim); }
 
 /* ---------------- ending */

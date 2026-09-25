@@ -36,7 +36,7 @@ There are three ways to finish:
 
 | Element | Where | Notes |
 | --- | --- | --- |
-| Scenes and maps | `src/story/scenes.ts` | ASCII maps. The legend is in `src/engine/tiles.ts`. |
+| Scenes and maps | `src/story/scenes.ts` | ASCII maps. The legend is in `src/engine/tiles.ts`. Roofs and the cross are an overhead layer: you walk behind them. |
 | Doors and exits | `warps` in a scene | Step on the tile to change scene. `when` + `locked` make a locked door. |
 | Characters | `src/story/characters/*.ts` | One file per character: sprite, voice pitch, dialogue. |
 | Branching talk (TS) | `Dialogue` nodes | Lines, choices, conditions (`when`), effects (`do`). |
@@ -50,7 +50,7 @@ There are three ways to finish:
 | Quest log | `src/story/quest.ts` | One HUD line per active quest, worked out from the flags. |
 | Endings | `src/story/endings.ts` | Queue a cutscene that ends with `{ end: 'id' }`. |
 | Save / Continue | `src/engine/state.ts` | Saves to `localStorage` after each talk and scene change. |
-| Sound | `src/engine/audio.ts` | Text blips per voice and a synthesised church bell. No audio files. |
+| Sound | `src/engine/audio.ts` | Text blips per voice, a church bell, and short lute tunes (`src/story/music.ts`). No audio files. |
 
 ## Ink
 
@@ -73,6 +73,7 @@ and Osric use TypeScript dialogue. Both kinds run in the same talk box.
   | `coins()` / `add_coins(n)` | Money (use a negative n to spend) |
   | `reveal(actor)` | The player learns this person's name |
   | `cutscene(id)` | Play a cutscene when the talk ends |
+  | `music(tune)` | Play a short tune from `src/story/music.ts` |
 
 Use ink `VAR`s for things only one character cares about (Mara's mood).
 Use game flags for things the quest log or other characters need.

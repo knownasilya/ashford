@@ -1,7 +1,7 @@
 // Bryn, a travelling minstrel. A tour of ink features:
 //   visit counts ({not greet: ...}), shuffles {~a|b}, tunnels (-> song ->),
 //   switch blocks, nested choices (++), ink variables, game functions
-//   (coins, add_coins, set_flag), and #who tags for a second speaker.
+//   (coins, add_coins, set_flag, music), and #who tags for a second speaker.
 
 VAR songs_heard = 0
 VAR paid_rumour = false
@@ -56,10 +56,23 @@ A listener! Sit, sit.
 = song
 ~ songs_heard++
 { songs_heard:
-- 1: This one is about a miller's daughter who married a river. It ends wet.
-- 2: This one is about a goose that became a bishop. I will spare you the third verse.
-- 3: This one is sad. It is about a bell that forgot its own voice.
-- else: That is all three songs I know. Please do not tell anyone.
+- 1:
+    ~ music("miller")
+    This one is about a miller's daughter who married a river. It ends wet.
+- 2:
+    ~ music("goose")
+    This one is about a goose that became a bishop. I will spare you the third verse.
+- 3:
+    ~ music("bell")
+    This one is sad. It is about a bell that forgot its own voice.
+- else:
+    // After the first three, a random one of the three variants.
+    { shuffle:
+    - ~ music("miller")
+    - ~ music("goose")
+    - ~ music("bell")
+    }
+    I only know three songs. You will have to hear one again. Please do not tell anyone.
 }
 { flag("osric_coming"): I hear the old ringer is coming down from the keep. That will make a fine fourth song. }
 ->->

@@ -5,6 +5,12 @@ import { txt } from './dialogue';
 import type { Ending } from './types';
 
 const $ = (id: string) => document.getElementById(id)!;
+
+/** A menu entry. A function label updates after each choice (for toggles). */
+export interface MenuItem {
+  label: string | (() => string);
+  run: () => void;
+}
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /** Everything drawn in HTML over the canvas: HUD, fades, cards, menus. */
@@ -17,7 +23,9 @@ export class UI {
   private cardDone?: () => void;
   private cardReadyAt = 0;
   private menuSel = 0;
-  private menuItems: { label: string; run: () => void }[] = [];
+  private menuItems: MenuItem[] = [];
+  private menuEl?: HTMLElement;
+  private onCancel?: () => void;
   private hudKey = '';
 
   // ------------------------------------------------ HUD
@@ -86,26 +94,51 @@ export class UI {
   }
 
   // ------------------------------------------------ menus
-  showTitle(items: { label: string; run: () => void }[]) {
+  private showMenu(list: HTMLElement, items: MenuItem[], onCancel?: () => void) {
+    this.menuEl = list;
     this.menuItems = items;
+    this.onCancel = onCancel;
     this.menuSel = 0;
     this.renderMenu();
+  }
+
+  private closeMenu() {
+    this.menuItems = [];
+    this.onCancel = undefined;
+  }
+
+  showTitle(items: MenuItem[]) {
+    this.showMenu($('menu'), items);
     $('title').classList.remove('hidden');
   }
 
   hideTitle() {
     $('title').classList.add('hidden');
-    this.menuItems = [];
+    this.closeMenu();
+  }
+
+  /** The Esc menu. Esc again calls onCancel. */
+  showPause(items: MenuItem[], onCancel: () => void) {
+    this.showMenu($('pause-menu'), items, onCancel);
+    $('pause').classList.remove('hidden');
+  }
+
+  hidePause() {
+    $('pause').classList.add('hidden');
+    this.closeMenu();
   }
 
   private renderMenu() {
-    const ul = $('menu');
+    const ul = this.menuEl!;
     ul.innerHTML = '';
     this.menuItems.forEach((m, i) => {
       const li = document.createElement('li');
-      li.textContent = m.label;
+      li.textContent = typeof m.label === 'function' ? m.label() : m.label;
       li.classList.toggle('selected', i === this.menuSel);
-      li.onclick = () => m.run();
+      li.onclick = () => {
+        m.run();
+        if (this.menuItems.length) this.renderMenu();
+      };
       ul.append(li);
     });
   }
@@ -144,6 +177,8 @@ export class UI {
       if (input.take('down')) this.menuSel = (this.menuSel + 1) % n;
       this.renderMenu();
       if (input.take('confirm')) this.menuItems[this.menuSel].run();
+      else if (input.take('cancel')) this.onCancel?.();
+      if (this.menuItems.length) this.renderMenu();
       return true;
     }
     return false;

@@ -1,6 +1,7 @@
 import { blip } from './audio';
 import { TEXT_SPEED } from './config';
 import { input } from './input';
+import { settings, TEXT_SPEEDS } from './settings';
 import { paintIcon } from './sprites';
 import type { GameState } from './state';
 import type { ActorDef, Choice, Dialogue, DialogueNode, Line, Text } from './types';
@@ -219,6 +220,13 @@ export class DialogueBox {
     else this.showNext();
   }
 
+  /** Hide the box without finishing the talk (quit to title). */
+  abort() {
+    this.open_ = false;
+    this.resolve = undefined;
+    this.el.classList.add('hidden');
+  }
+
   private close() {
     this.open_ = false;
     this.el.classList.add('hidden');
@@ -230,7 +238,7 @@ export class DialogueBox {
 
     if (this.shown < this.full.length) {
       const before = Math.floor(this.shown);
-      this.shown = input.take('confirm') ? this.full.length : Math.min(this.full.length, this.shown + (dt * TEXT_SPEED) / 1000);
+      this.shown = input.take('confirm') ? this.full.length : Math.min(this.full.length, this.shown + (dt * TEXT_SPEED * TEXT_SPEEDS[settings.textSpeed]) / 1000);
       const after = Math.floor(this.shown);
       if (after > before && after < this.full.length && after % 2 === 0 && this.full[after] !== ' ') blip(this.voice);
       this.renderText();

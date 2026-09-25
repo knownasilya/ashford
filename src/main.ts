@@ -1,12 +1,13 @@
 import '@fontsource/press-start-2p';
 import './style.css';
-import { unlockAudio } from './engine/audio';
+import { stopTune, unlockAudio } from './engine/audio';
 import { TILE, VIEW_H, VIEW_W } from './engine/config';
 import { play, type Director } from './engine/cutscene';
 import { DialogueBox, nodeConversation, txt, withNameQuestion, type Conversation } from './engine/dialogue';
 import { InkRunner } from './engine/ink';
 import { input } from './engine/input';
 import { paintIcon } from './engine/sprites';
+import { saveSettings, settings, type TextSpeed } from './engine/settings';
 import { clearSave, GameState, loadGame, saveGame } from './engine/state';
 import type { ActorDef, Warp } from './engine/types';
 import { UI } from './engine/ui';
@@ -49,7 +50,7 @@ const actor = (id: string): ActorDef => {
 const world = new World(story, state);
 const ui = new UI();
 const dialogue = new DialogueBox(state, actor, you);
-const ink = story.ink ? new InkRunner(story.ink, state) : null;
+const ink = story.ink ? new InkRunner(story.ink, state, story.tunes) : null;
 
 // ------------------------------------------------------------------ flow
 type Mode = 'title' | 'play' | 'busy' | 'ending';
@@ -182,6 +183,54 @@ function toTitle() {
   ui.showTitle(items);
 }
 
+// ------------------------------------------------------------------ Esc menu
+const onOff = (on: boolean) => (on ? 'On' : 'Off');
+const SPEEDS: TextSpeed[] = ['slow', 'normal', 'fast'];
+
+function openPause() {
+  ui.showPause(
+    [
+      { label: 'Resume', run: closePause },
+      {
+        label: () => `Typing sound: ${onOff(settings.typingSound)}`,
+        run: () => {
+          settings.typingSound = !settings.typingSound;
+          saveSettings();
+        },
+      },
+      {
+        label: () => `Music: ${onOff(settings.music)}`,
+        run: () => {
+          settings.music = !settings.music;
+          if (!settings.music) stopTune();
+          saveSettings();
+        },
+      },
+      {
+        label: () => `Text speed: ${settings.textSpeed[0].toUpperCase()}${settings.textSpeed.slice(1)}`,
+        run: () => {
+          settings.textSpeed = SPEEDS[(SPEEDS.indexOf(settings.textSpeed) + 1) % SPEEDS.length];
+          saveSettings();
+        },
+      },
+      {
+        label: 'Quit to title',
+        run: () => {
+          closePause();
+          dialogue.abort();
+          stopTune();
+          toTitle(); // progress is saved after each talk and scene change
+        },
+      },
+    ],
+    closePause,
+  );
+}
+
+function closePause() {
+  ui.hidePause();
+}
+
 // ------------------------------------------------------------------ loop
 function playerInput() {
   if (world.busy) return;
@@ -203,7 +252,8 @@ function playerInput() {
 
 function update(dt: number, now: number) {
   if (!ui.update()) {
-    dialogue.update(dt);
+    if ((mode === 'play' || dialogue.isOpen) && input.take('cancel')) openPause();
+    else dialogue.update(dt);
     if (mode === 'play' && !dialogue.isOpen) playerInput();
     if (mode === 'ending' && input.take('confirm')) toTitle();
   }
