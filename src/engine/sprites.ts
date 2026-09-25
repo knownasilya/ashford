@@ -39,6 +39,17 @@ const WATER = [
   '........',
 ];
 
+// Wood roof rows; the slope tiles cut this pattern to a triangle.
+const ROOF = ['RRRRRRRR', 'dddddddd', 'RRRRRRRR', 'dodododo', 'RRRRRRRR', 'dddddddd', 'RRRRRRRR', 'dodododo'];
+
+/** Cut the roof pattern with a mask: 'in' keeps it, 'edge' draws the trim, else empty. */
+function roofShape(mask: (x: number, y: number) => 'in' | 'edge' | null, top: string[] = []): SpriteDef {
+  const rows = ROOF.map((row, y) =>
+    [...row].map((ch, x) => (top[y]?.[x] && top[y][x] !== '.' ? top[y][x] : mask(x, y) === 'edge' ? 'F' : mask(x, y) ? ch : '.')).join(''),
+  );
+  return { frames: [rows], colors: { d: DIRT } };
+}
+
 export const SPRITES: Record<string, SpriteDef> = {
   // ---------- terrain ----------
   grass: sp(['........', '..g.....', '........', '.....g..', '........', '.g......', '......g.', '........']),
@@ -58,7 +69,14 @@ export const SPRITES: Record<string, SpriteDef> = {
   woodWall: sp(['RRRRRRRR', 'R.RR.RR.', 'R.RR.RR.', 'R.RR.RR.', 'RRRRRRRR', 'R.RR.RR.', 'R.RR.RR.', 'R.RR.RR.'], DIRT),
   woodRoof: sp(['RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o', 'RRRRRRRR', '........', 'RRRRRRRR', '.o.o.o.o'], DIRT),
   door: sp(['.RRRRRR.', 'RR....RR', 'R......R', 'R......R', 'R....Y.R', 'R......R', 'R......R', 'R......R'], '#150a06'),
-  cross: sp(['...Y....', '...Y....', '.YYYYY..', '...Y....', '...Y....', '...Y....', '...Y....', '........']),
+  cross: sp(['........', '........', '...YY...', '...YY...', '.YYYYYY.', '.YYYYYY.', '...YY...', '...YY...']),
+  // Pointed roof: left slope, right slope, and the peak (with the cross's foot).
+  roofLeft: roofShape((x, y) => (x === 7 - y ? 'edge' : x > 7 - y ? 'in' : null)),
+  roofRight: roofShape((x, y) => (x === y ? 'edge' : x < y ? 'in' : null)),
+  roofPeak: roofShape(
+    (x, y) => (y < 4 ? null : x === 7 - y || x === y ? 'edge' : x > 7 - y && x < y ? 'in' : null),
+    ['...YY...', '...YY...', '...YY...', '...YY...'],
+  ),
 
   // ---------- interiors ----------
   floor: sp(['....r...', '....r...', '....r...', 'rrrrrrrr', 'r.......', 'r.......', 'r.......', 'rrrrrrrr'], FLOOR),

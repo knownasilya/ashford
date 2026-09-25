@@ -5,6 +5,7 @@ import type { SceneDef } from '../engine/types';
  *   .  grass     ,  tall grass   :  dirt      _  path     =  bridge / dock
  *   T  pine      O  oak          ~  water     r  rock     F  fence
  *   W  wood wall R  wood roof*   D  door      +  cross*
+ *   <  roof slope left*          >  roof slope right*     A  roof peak*
  *   #  stone wall ^ stone roof*  M  battlement  -  wood floor
  *   (* = drawn over characters: you can walk behind it)
  *   p  pew       a  altar        c  candle    n  anvil    f  forge   b  barrel
@@ -19,11 +20,11 @@ const village: SceneDef = {
     'TT.,..T.TTT.T....,.__...T..T.TT..,.TTTTT',
     'T..,...T.T..T......__.,.....T...,...T.TT',
     'T.,......T.........__..........,....,.TT',
-    'T..................__..................T',
-    'T..O....,..........__............O.....T',
-    'T.OOO..............__...........OOO....T',
     'T..................__.....+............T',
-    'T...RRRRRR.........__..RRRRRRR.........T',
+    'T..O....,..........__.....A......O.....T',
+    'T.OOO..............__....<R>....OOO....T',
+    'T..................__...<RRR>..........T',
+    'T...RRRRRR.........__..<RRRRR>.........T',
     'T...RRRRRR.........__..RRRRRRR.^^^^^^..T',
     'T...WWWWWW.........__..WWWWWWW.######..T',
     'T...WWDWWW.........__..WWWDWWW.##D###..T',
