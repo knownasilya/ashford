@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ashford</title>
+  </head>
+  <body>
+    <div id="screen">
+      <canvas id="game"></canvas>
+
+      <div id="hud" class="panel hidden">
+        <div class="row"><canvas id="coin-icon" class="icon"></canvas><span id="coins">000</span><span id="items"></span></div>
+        <div id="objective"></div>
+      </div>
+      <div id="banner" class="panel"></div>
+
+      <div id="dialogue" class="panel hidden">
+        <canvas id="portrait"></canvas>
+        <div class="body">
+          <div id="speaker"></div>
+          <div id="text"></div>
+          <ul id="choices"></ul>
+        </div>
+        <div id="more" class="hidden">&#9660;</div>
+      </div>
+
+      <div id="fade"></div>
+      <div id="card" class="hidden"><div id="card-text"></div><div class="hint">&#9660;</div></div>
+
+      <div id="title" class="hidden">
+        <div class="panel box">
+          <h1 id="game-title"></h1>
+          <h2 id="game-subtitle"></h2>
+          <ul id="menu"></ul>
+          <p class="keys">Arrows / WASD move &middot; Space / E talk &middot; 1-9 choose</p>
+        </div>
+      </div>
+
+      <div id="ending" class="hidden">
+        <div class="ending-body">
+          <h2 id="ending-title"></h2>
+          <div id="ending-text"></div>
+        </div>
+        <div class="panel footer"><span id="ending-year"></span><span>Your Journey Ends</span></div>
+        <p class="keys">Press Enter</p>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
