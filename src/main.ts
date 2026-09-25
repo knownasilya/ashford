@@ -9,7 +9,7 @@ import { input } from './engine/input';
 import { paintIcon } from './engine/sprites';
 import { saveSettings, settings, type TextSpeed } from './engine/settings';
 import { clearSave, GameState, loadGame, saveGame } from './engine/state';
-import type { ActorDef, Warp } from './engine/types';
+import type { ActorDef, Dir, Warp } from './engine/types';
 import { UI } from './engine/ui';
 import { World } from './engine/world';
 import { story } from './story';
@@ -270,7 +270,27 @@ function frame(now: number) {
   requestAnimationFrame(frame);
 }
 
-toTitle();
+/**
+ * Dev-only deep link: open straight into a scene, skipping the title.
+ *   ?scene=village&x=22&y=12&dir=up&flags=quest,veil_met&coins=5&talk=bryn
+ */
+function devStart(): boolean {
+  if (!import.meta.env.DEV) return false;
+  const q = new URLSearchParams(location.search);
+  const scene = q.get('scene');
+  if (!scene) return false;
+  reset();
+  q.get('flags')?.split(',').filter(Boolean).forEach((f) => state.set(f));
+  if (q.has('coins')) state.coins = Number(q.get('coins'));
+  ui.showHud(true);
+  world.load(scene, Number(q.get('x') ?? 0), Number(q.get('y') ?? 0), (q.get('dir') ?? 'down') as Dir);
+  mode = 'play';
+  const talk = q.get('talk');
+  if (talk) busy(() => director.talk(talk));
+  return true;
+}
+
+if (!devStart()) toTitle();
 requestAnimationFrame(frame);
 
 // Dev-only console helpers: ashford.state.flags, ashford.step(500), ...

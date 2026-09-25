@@ -7,6 +7,8 @@ of characters in code.
 
 **Play it:** https://knownasilya.github.io/ashford/
 
+![Ashford: talking to the minstrel in front of the church](docs/screenshot.png)
+
 ```bash
 npm install
 npm run dev
@@ -118,6 +120,13 @@ In dev mode the browser console has `ashford`:
 ashford.state.flags          // what the story knows
 ashford.state.set('quest')   // cheat a flag
 ashford.world.load('keep', 9, 12)  // jump to a scene
+```
+
+You can also open the dev server straight into a scene. It skips the
+title, sets flags, and can start a talk:
+
+```
+http://localhost:5173/?scene=village&x=22&y=12&flags=quest,veil_met&talk=bryn
 ```
 
 ## Layout
